@@ -94,3 +94,7 @@ Before you begin, ensure you have the following tools installed:
    ```
 
    Make sure to replace `my-terraform-state-bucket-name` with your actual bucket name.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
