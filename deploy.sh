@@ -6,6 +6,26 @@
 # Define variables
 TF_COMMAND="terraform"
 
+# Step 1: Package Lambda functions
+echo "Packaging Lambda functions..."
+
+echo "Packaging DNS Lambda function..."
+(cd lambda/dns && ./package.sh) || {
+  echo "DNS Lambda packaging failed."
+  exit 1
+}
+
+echo "Packaging Check Lambda function..."
+(cd lambda/check && ./package.sh) || {
+  echo "Check Lambda packaging failed."
+  exit 1
+}
+
+echo "Packaging Parser Lambda function..."
+(cd lambda/parser && ./package.sh) || {
+  echo "Parser Lambda packaging failed."
+  exit 1
+}
 
 # Step 3: Initialize Terraform
 echo "Initializing Terraform..."
