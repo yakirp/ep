@@ -82,3 +82,18 @@ Before you begin, ensure you have the following tools installed:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Using the API
+
+After deployment, you can use the API to register domains and their corresponding webhooks:
+
+### Register a Domain with a Webhook
+
+```bash
+curl -X POST '<api_gateway_url>/v1/domain' \
+-H 'Content-Type: application/json' \
+-d '{
+"domain": "yourdomain.com",
+"webhook": "https://your-webhook-endpoint.com/path"
+}'
+```
