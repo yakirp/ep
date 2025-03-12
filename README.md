@@ -94,13 +94,13 @@ curl -X POST '<api_gateway_url>/v1/domain' \
 }'
 ```
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## Contact
 
 Feel free to connect with me:
 
 - LinkedIn: [Yakir Perlin](https://www.linkedin.com/in/yakirperlin/)
 - Twitter: [@yakirbipbip](https://x.com/yakirbipbip)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
