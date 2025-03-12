@@ -1,5 +1,3 @@
-
-
 # S3 Bucket for Lambda Deployment Package
 resource "aws_s3_bucket" "lambda_bucket" {
   bucket = var.s3_bucket
@@ -62,8 +60,6 @@ resource "aws_iam_role_policy_attachment" "lambda_role_attachment" {
   role       = aws_iam_role.lambda_role.name
   policy_arn = aws_iam_policy.lambda_policy.arn
 }
-
-
 
 # Lambda Function
 resource "aws_lambda_function" "email_parser_lambda" {
@@ -262,7 +258,6 @@ resource "aws_lambda_permission" "api_gateway_permission" {
   source_arn    = "${aws_apigatewayv2_api.lambda_api.execution_arn}/prod/*"
 }
 
-
 ###########
 # API Gateway Integration with Lambda
 resource "aws_apigatewayv2_integration" "verify_lambda_integration" {
@@ -294,13 +289,9 @@ output "api_gateway_url" {
   description = "API Gateway endpoint URL"
 }
 
-
-
 resource "aws_ses_receipt_rule_set" "default_rule_set" {
   rule_set_name = "default-rule-set"
 }
-
-
 
 # S3 Bucket Policy to Allow SES Write Access
 resource "aws_s3_bucket_policy" "email_storage_policy" {
@@ -388,8 +379,6 @@ resource "aws_s3_bucket_policy" "public_access_policy" {
   })
 
  }
-
-
 
 ####3 parse email lambda
 
@@ -530,7 +519,6 @@ resource "aws_lambda_permission" "allow_s3_to_invoke" {
   principal     = "s3.amazonaws.com"
   source_arn    = aws_s3_bucket.lambda_bucket.arn
 }
-
 
 resource "aws_cloudfront_distribution" "api_distribution" {
 aliases = ["api.emailtowebhook.com", "attachments.emailtowebhook.com"]
@@ -721,4 +709,26 @@ resource "aws_route53_record" "attachments_alias" {
 
     depends_on = [aws_cloudfront_distribution.api_distribution]
 
+}
+
+# Add this new resource to attach S3 read permissions to the role
+resource "aws_iam_role_policy" "lambda_s3_policy" {
+  name   = "lambda_s3_policy"
+  role   = aws_iam_role.lambda_exec.id
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ],
+        Effect   = "Allow",
+        Resource = [
+          "arn:aws:s3:::my-lambda-deploy-bucket-4sdsd6thgr",
+          "arn:aws:s3:::my-lambda-deploy-bucket-4sdsd6thgr/*"
+        ]
+      }
+    ]
+  })
 }
