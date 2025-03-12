@@ -200,3 +200,7 @@ override.tf.json
 terraform.rc
 
 *.zip
+
+
+# .idea
+.idea/
