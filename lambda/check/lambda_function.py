@@ -189,7 +189,7 @@ def lambda_handler(event, context):
             "domain": user_domain,
             "webhook": webhook,
             "dns_records": dns_records,
-            "status": status,
+            "status": status.lower(),
             "message": "DNS records verified successfully" if status == "Success" else "Verification pending"
         }
 
