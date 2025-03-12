@@ -166,7 +166,7 @@ def lambda_handler(event, context):
         status = check_verification_status(user_domain)
 
         # Get or create SMTP credentials
-        smtp_credentials = create_smtp_user(user_domain)
+        # smtp_credentials = create_smtp_user(user_domain)
 
         # Get verification token (will only initiate new verification if needed)
         token = verify_domain(user_domain)
@@ -189,7 +189,6 @@ def lambda_handler(event, context):
             "domain": user_domain,
             "webhook": webhook,
             "dns_records": dns_records,
-            "smtp_credentials": smtp_credentials,
             "status": status,
             "message": "Configuration retrieved successfully" if status == "Success" else "Verification pending"
         }
