@@ -392,6 +392,12 @@ resource "aws_lambda_function" "my_lambda" {
   # Detect changes in ZIP content
   source_code_hash = filebase64sha256(var.parser_lambda_file_path)
   timeout = 20
+
+  environment {
+    variables = {
+      DOMAIN_NAME = var.domain_name
+    }
+  }
 }
 
 resource "aws_iam_role" "lambda_exec" {
@@ -521,23 +527,19 @@ resource "aws_lambda_permission" "allow_s3_to_invoke" {
 }
 
 resource "aws_cloudfront_distribution" "api_distribution" {
-aliases = ["api.emailtowebhook.com", "attachments.emailtowebhook.com"]
+  aliases = ["api.${var.domain_name}", "attachments.${var.domain_name}"]
 
   origin {
-  domain_name = "${aws_apigatewayv2_api.lambda_api.id}.execute-api.us-east-1.amazonaws.com"
-  origin_path = "/prod"
+    domain_name = "${aws_apigatewayv2_api.lambda_api.id}.execute-api.us-east-1.amazonaws.com"
+    origin_path = "/prod"
     origin_id   = "APIGatewayOrigin"
-  custom_origin_config {
-
+    custom_origin_config {
       origin_ssl_protocols      = ["TLSv1.2"]
-
-    http_port            = 80
-    https_port           = 443
-    origin_protocol_policy = "https-only"
-
-
+      http_port            = 80
+      https_port           = 443
+      origin_protocol_policy = "https-only"
+    }
   }
-}
 
   # Add the S3 bucket origin
   origin {
@@ -545,10 +547,9 @@ aliases = ["api.emailtowebhook.com", "attachments.emailtowebhook.com"]
     origin_id   = "S3BucketOrigin"
     origin_path = "/attachments" # Map the origin to the attachments folder in the bucket
 
-   s3_origin_config {
-  origin_access_identity = "origin-access-identity/cloudfront/${aws_cloudfront_origin_access_identity.s3_access.id}"
-}
-
+    s3_origin_config {
+      origin_access_identity = "origin-access-identity/cloudfront/${aws_cloudfront_origin_access_identity.s3_access.id}"
+    }
   }
 
   enabled             = true
@@ -558,16 +559,11 @@ aliases = ["api.emailtowebhook.com", "attachments.emailtowebhook.com"]
   viewer_certificate {
     acm_certificate_arn = "arn:aws:acm:us-east-1:302835751737:certificate/3b5ce796-3a5c-4742-8d98-79d1a42191e9"
     ssl_support_method  = "sni-only"
-     minimum_protocol_version       = "TLSv1.2_2021" # Ensure TLS 1.2 or later
-    #minimum_protocol_version = "TLSv1.2_2019" # Slightly older version
-
+    minimum_protocol_version       = "TLSv1.2_2021" # Ensure TLS 1.2 or later
   }
 
- default_cache_behavior {
+  default_cache_behavior {
     target_origin_id = "S3BucketOrigin"
-  //  path_pattern     = "*" # Matches only S3 bucket paths
-
-
     viewer_protocol_policy = "redirect-to-https"
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
@@ -589,8 +585,6 @@ aliases = ["api.emailtowebhook.com", "attachments.emailtowebhook.com"]
     geo_restriction {
       restriction_type = "none"
     }
-
-
   }
 
   ordered_cache_behavior {
@@ -599,27 +593,20 @@ aliases = ["api.emailtowebhook.com", "attachments.emailtowebhook.com"]
     cached_methods   = ["GET", "HEAD"]
     path_pattern = "/v1/*"
 
-
-forwarded_values {
-       query_string = true  # Change to true to pass all query parameters
-       headers      = ["None"]
-
-
+    forwarded_values {
+      query_string = true  # Change to true to pass all query parameters
+      headers      = ["None"]
 
       cookies {
         forward = "none"
       }
     }
 
-    #viewer_protocol_policy = "https-only"
-     viewer_protocol_policy = "redirect-to-https"
+    viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400
   }
-
-# Cache behavior for attachments.emailtowebhook.com to serve from S3 bucket
-
 
   depends_on = [aws_apigatewayv2_api.lambda_api, aws_cloudfront_origin_access_identity.s3_access]
 }
@@ -634,23 +621,10 @@ output "origin_access_identity_arn" {
   description = "The full ARN of the CloudFront Origin Access Identity"
 }
 
-/*resource "aws_route53_record" "cloudfront_alias" {
-  zone_id = var.route53_zone_id
-  name    = "${var.subdomain_name}.${var.domain_name}"
-  type    = "CNAME"
-  ttl     = "300"
-  records = [aws_cloudfront_distribution.api_distribution.domain_name]
-
-
-
- }*/
-
-
-
 # Create a Route 53 record for CloudFront
 resource "aws_route53_record" "api" {
   zone_id = var.route53_zone_id
-  name    = "api.emailtowebhook.com"
+  name    = "api.${var.domain_name}"
   type    = "A"
 
   alias {
@@ -659,10 +633,8 @@ resource "aws_route53_record" "api" {
     evaluate_target_health = false
   }
 
-    depends_on = [aws_cloudfront_distribution.api_distribution]
-
+  depends_on = [aws_cloudfront_distribution.api_distribution]
 }
-
 
 resource "aws_s3_bucket_policy" "attachments_policy" {
   bucket = "email-attachments-bucket-3rfrd" # Replace with your actual bucket name
@@ -690,15 +662,11 @@ resource "aws_s3_bucket_policy" "attachments_policy" {
   })
 
   depends_on = [aws_cloudfront_distribution.api_distribution]
-
 }
-
-
-
 
 resource "aws_route53_record" "attachments_alias" {
   zone_id = var.route53_zone_id
-  name    = "attachments.emailtowebhook.com" # The subdomain you want to use
+  name    = "attachments.${var.domain_name}"
   type    = "A"
 
   alias {
@@ -707,8 +675,7 @@ resource "aws_route53_record" "attachments_alias" {
     evaluate_target_health = false
   }
 
-    depends_on = [aws_cloudfront_distribution.api_distribution]
-
+  depends_on = [aws_cloudfront_distribution.api_distribution]
 }
 
 # Add this new resource to attach S3 read permissions to the role

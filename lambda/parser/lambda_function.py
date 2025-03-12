@@ -9,9 +9,13 @@ from email import policy
 from email.parser import BytesParser
 import requests  # For HTTP POST requests
 import uuid
+import os
+
 # Initialize clients
 s3_client = boto3.client('s3')
 
+# Get domain name from environment variable
+domain_name = os.environ.get('DOMAIN_NAME', 'emailtowebhook.com')
 
 def lambda_handler(event, context):
     # Define the bucket for webhook storage
@@ -83,7 +87,7 @@ def lambda_handler(event, context):
                         Body=attachment_data
                     )
 
-                    public_url = f"https://attachments.emailtowebhook.com/{display_key}"
+                    public_url = f"https://attachments.{domain_name}/{display_key}"
                     attachments.append({
                         "filename": attachment_name,
                         "public_url": public_url,
