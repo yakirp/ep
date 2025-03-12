@@ -1,4 +1,7 @@
 #!/bin/bash
+# MIT License
+# Copyright (c) 2023 [Your Name or Organization]
+# See LICENSE file for details
 
 # Define variables
 TF_COMMAND="terraform"

@@ -1,3 +1,7 @@
+# MIT License
+# Copyright (c) 2023 [Your Name or Organization]
+# See LICENSE file for details
+
 import boto3
 import json
 import secrets
