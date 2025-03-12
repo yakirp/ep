@@ -79,10 +79,6 @@ Before you begin, ensure you have the following tools installed:
 
    Make sure to replace `my-terraform-state-bucket-name` with your actual bucket name.
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## Using the API
 
 After deployment, you can use the API to register domains and their corresponding webhooks:
@@ -97,3 +93,14 @@ curl -X POST '<api_gateway_url>/v1/domain' \
 "webhook": "https://your-webhook-endpoint.com/path"
 }'
 ```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+Feel free to connect with me:
+
+- LinkedIn: [Yakir Perlin](https://www.linkedin.com/in/yakirperlin/)
+- Twitter: [@yakirbipbip](https://x.com/yakirbipbip)
