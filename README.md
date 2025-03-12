@@ -76,8 +76,6 @@ Before you begin, ensure you have the following tools installed:
    # Create an S3 bucket for Terraform state
    aws s3 mb s3://my-terraform-state-bucket-name --region us-east-1
 
-   # Enable versioning on the bucket
-   aws s3api put-bucket-versioning --bucket my-terraform-state-bucket-name --versioning-configuration Status=Enabled
    ```
 
    Then configure your Terraform backend in `provider.tf`:
