@@ -69,3 +69,31 @@ Before you begin, ensure you have the following tools installed:
    ```
    terraform --version
    ```
+
+3. **S3 Bucket for Terraform State** - Create an S3 bucket to store Terraform state files.
+
+   ```
+   # Create an S3 bucket for Terraform state
+   aws s3 mb s3://my-terraform-state-bucket-name --region us-east-1
+
+   # Enable versioning on the bucket
+   aws s3api put-bucket-versioning --bucket my-terraform-state-bucket-name --versioning-configuration Status=Enabled
+   ```
+
+   Then configure your Terraform backend in `provider.tf`:
+
+   ```hcl
+   terraform {
+     backend "s3" {
+       bucket = "my-terraform-state-bucket-name"
+       key    = "terraform.tfstate"
+       region = "us-east-1"
+     }
+   }
+
+   provider "aws" {
+     region = var.aws_region
+   }
+   ```
+
+   Make sure to replace `my-terraform-state-bucket-name` with your actual bucket name.
