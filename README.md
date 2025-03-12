@@ -75,7 +75,6 @@ Before you begin, ensure you have the following tools installed:
    ```
    # Create an S3 bucket for Terraform state
    aws s3 mb s3://my-terraform-state-bucket-name --region us-east-1
-
    ```
 
    Then configure your Terraform backend in `provider.tf`:
