@@ -64,13 +64,13 @@ resource "aws_iam_role_policy_attachment" "lambda_role_attachment" {
 # Lambda Function
 resource "aws_lambda_function" "email_parser_lambda" {
   function_name = var.lambda_function_name
-  filename      = var.lambda_file_path # Directly reference the ZIP file
+  filename      = var.parser_lambda_file_path
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.9"
   role          = aws_iam_role.lambda_role.arn
 
   # Detect changes in ZIP content
-  source_code_hash = filebase64sha256(var.lambda_file_path)
+  source_code_hash = filebase64sha256(var.parser_lambda_file_path)
 
   environment {
     variables = {

@@ -6,7 +6,7 @@
 # Get the current directory name (function name)
 FUNCTION_NAME=$(basename "$PWD")
 ROOT_DIR=$(git rev-parse --show-toplevel 2>/dev/null || echo "$(cd ../ && pwd)")
-ZIP_FILE="${ROOT_DIR}/${FUNCTION_NAME}.zip"
+ZIP_FILE="${ROOT_DIR}/lambda_packages/${FUNCTION_NAME}.zip"
 TEMP_DIR=$(mktemp -d)
 
 echo "Packaging Lambda function: $FUNCTION_NAME"

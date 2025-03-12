@@ -6,14 +6,37 @@
 # Define variables
 TF_COMMAND="terraform"
 
+# Check if AWS CLI is installed
+if ! command -v aws &> /dev/null; then
+    echo "AWS CLI is not installed. Please install it before running this script."
+    echo "Installation instructions: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html"
+    exit 1
+fi
+
+echo "AWS CLI is installed and configured properly."
+
+# Check if Terraform is installed
+if ! command -v terraform &> /dev/null; then
+    echo "Terraform is not installed. Please install it before running this script."
+    echo "Installation instructions: https://learn.hashicorp.com/tutorials/terraform/install-cli"
+    exit 1
+fi
+
+# Verify Terraform version
+TERRAFORM_VERSION=$(terraform version -json | jq -r '.terraform_version')
+echo "Terraform version $TERRAFORM_VERSION is installed."
+
+# Check if jq is installed (used above for parsing Terraform version)
+if ! command -v jq &> /dev/null; then
+    echo "Warning: jq is not installed. This script uses jq to parse Terraform version."
+    echo "The script will continue, but for full functionality, please install jq."
+fi
+
+
 # Step 1: Package Lambda functions
 echo "Packaging Lambda functions..."
 
-echo "Packaging DNS Lambda function..."
-(cd lambda/dns && ./package.sh) || {
-  echo "DNS Lambda packaging failed."
-  exit 1
-}
+mkdir -p lambda_packages
 
 echo "Packaging Check Lambda function..."
 (cd lambda/check && ./package.sh) || {
@@ -27,25 +50,19 @@ echo "Packaging Parser Lambda function..."
   exit 1
 }
 
-# Step 3: Initialize Terraform
-echo "Initializing Terraform..."
-$TF_COMMAND init || {
-  echo "Terraform initialization failed."
-  exit 1
-}
+# Change directory to the infa folder before running terraform commands
+cd infra
 
-# Step 4: Run Terraform plan
-echo "Running Terraform plan..."
-$TF_COMMAND plan || {
-  echo "Terraform plan failed."
-  exit 1
-}
-
-# Step 5: Apply Terraform configuration
-echo "Applying Terraform configuration..."
-$TF_COMMAND apply -auto-approve || {
-  echo "Terraform apply failed."
-  exit 1
-}
+# Run terraform commands
+terraform init
+terraform plan
+terraform apply -auto-approve
 
 echo "Deployment complete."
+
+# Clean up zip files after deployment
+echo "Cleaning up Lambda function zip files..."
+cd ..
+rm -rf lambda_packages
+
+echo "Cleanup complete."

@@ -14,19 +14,14 @@ variable "s3_bucket" {
   default = "my-lambda-deploy-bucket-4sdsd6thgr"
 }
 
-variable "lambda_file_path" {
-  default = "./dns.zip"
-}
 
 variable "verify_lambda_file_path" {
-  default = "./check.zip"
+  default = "../lambda_packages/check.zip"
 }
 
 variable "parser_lambda_file_path" {
-  default = "./parser.zip"
+  default = "../lambda_packages/parser.zip"
 }
-
-
 
 variable "aws_account_id" {
   default = "302835751737"
